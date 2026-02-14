@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Familia Distribuidora</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <button id="menu-hamburguesa"><i class="fas fa-bars"></i></button>
+        <div class="brand">
+            <img src="logo.jpeg" alt="Familia Distribuidora" class="logo">
+            <h1>Familia Distribuidora</h1>
+            <p class="site-subtitle">Gestión de Preventistas</p>
+        </div>
+        <nav id="menu">
+            <a href="#clientes"><i class="fas fa-users"></i> Clientes</a>
+            <a href="#productos"><i class="fas fa-box"></i> Productos</a>
+            <a href="#pedidos"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+        </nav>
+    </header>
+    <main>
+        <section id="clientes" class="seccion-app">
+            <h2><i class="fas fa-users"></i> Clientes</h2>
+            <form id="form-cliente" class="form-app">
+                <div class="form-group">
+                    <input type="text" id="nombre-cliente" placeholder="Nombre del cliente" required>
+                    <input type="text" id="direccion-cliente" placeholder="Dirección" required>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-plus"></i> Agregar Cliente</button>
+            </form>
+            <ul id="lista-clientes" class="lista-items"></ul>
+        </section>
+
+        <section id="productos" class="seccion-app">
+            <h2><i class="fas fa-box"></i> Productos</h2>
+            <form id="form-producto" class="form-app">
+                <div class="form-group">
+                    <input type="text" id="nombre-producto" placeholder="Nombre del producto" required>
+                    <input type="number" id="precio-producto" placeholder="Precio" required>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-plus"></i> Agregar Producto</button>
+            </form>
+            <ul id="lista-productos" class="lista-items"></ul>
+        </section>
+
+        <section id="pedidos" class="seccion-app">
+            <h2><i class="fas fa-clipboard-list"></i> Pedidos</h2>            <form id="form-pedido" class="form-app">
+                <div class="form-group">
+                    <select id="cliente-pedido" required>
+                        <option value="">Seleccionar Cliente</option>
+                    </select>
+                    <select id="producto-pedido" required>
+                        <option value="">Seleccionar Producto</option>
+                    </select>
+                    <input type="number" id="cantidad-pedido" placeholder="Cantidad" required>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-plus"></i> Registrar Pedido</button>
+            </form>
+            <ul id="lista-pedidos" class="lista-items"></ul>
+            <footer class="acciones-pedidos">
+                <button id="exportar-json" class="btn-action"><i class="fas fa-file-export"></i> Exportar JSON</button>
+                <button id="importar-json" class="btn-action"><i class="fas fa-file-import"></i> Importar JSON</button>
+                <button id="exportar-excel" class="btn-action"><i class="fas fa-file-excel"></i> Exportar Excel</button>
+                <button id="imprimir-pedidos" class="btn-action"><i class="fas fa-print"></i> Imprimir Pedidos</button>
+                <button id="borrar-todo" class="btn-action"><i class="fas fa-trash"></i> Borrar todo</button>
+            </footer>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
