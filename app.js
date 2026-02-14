@@ -16,6 +16,8 @@ const imprimirPedidos = document.getElementById('imprimir-pedidos');
 const formProducto = document.getElementById('form-producto');
 const listaProductos = document.getElementById('lista-productos');
 const productoPedido = document.getElementById('producto-pedido');
+const buscarProducto = document.getElementById('buscar-producto');
+const sugerenciasProductos = document.getElementById('sugerencias-productos');
 
 const formPedido = document.getElementById('form-pedido');
 const listaPedidos = document.getElementById('lista-pedidos');
@@ -98,18 +100,6 @@ function renderProductos() {
         li.innerHTML = `${nombre} - $${precio} <button onclick="eliminarProducto('${nombre}')">Eliminar</button>`;
         listaProductos.appendChild(li);
     });
-    // Select pedidos
-    productoPedido.innerHTML = '';
-    const opt = document.createElement('option');
-    opt.value = '';
-    opt.textContent = 'Seleccionar Producto';
-    productoPedido.appendChild(opt);
-    productos.forEach(({ nombre }) => {
-        const option = document.createElement('option');
-        option.value = nombre;
-        option.textContent = nombre;
-        productoPedido.appendChild(option);
-    });
 }
 
 function renderPedidos() {
@@ -178,6 +168,9 @@ formPedido.addEventListener('submit', (e) => {
     saveAll();
     renderPedidos();
     formPedido.reset();
+    buscarProducto.value = '';
+    productoPedido.value = '';
+    sugerenciasProductos.classList.remove('activa');
 });
 
 // Función para eliminar cliente
@@ -206,6 +199,65 @@ function eliminarPedido(index) {
     saveAll();
     renderPedidos();
 }
+
+// Funciones para el buscador de productos
+function mostrarSugerenciasProductos(texto) {
+    sugerenciasProductos.innerHTML = '';
+    
+    if (!texto.trim()) {
+        sugerenciasProductos.classList.remove('activa');
+        return;
+    }
+    
+    const textoBuscado = texto.toLowerCase();
+    const coincidencias = productos.filter(producto => 
+        producto.nombre.toLowerCase().includes(textoBuscado)
+    );
+    
+    if (coincidencias.length === 0) {
+        sugerenciasProductos.classList.remove('activa');
+        return;
+    }
+    
+    coincidencias.forEach(producto => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span class="producto-nombre">${producto.nombre}</span>
+            <span class="producto-precio">$${producto.precio}</span>
+        `;
+        li.addEventListener('click', () => {
+            seleccionarProducto(producto.nombre);
+        });
+        sugerenciasProductos.appendChild(li);
+    });
+    
+    sugerenciasProductos.classList.add('activa');
+}
+
+function seleccionarProducto(nombreProducto) {
+    productoPedido.value = nombreProducto;
+    buscarProducto.value = nombreProducto;
+    sugerenciasProductos.classList.remove('activa');
+    document.getElementById('cantidad-pedido').focus();
+}
+
+// Event listeners para el buscador de productos
+buscarProducto.addEventListener('input', (e) => {
+    mostrarSugerenciasProductos(e.target.value);
+});
+
+buscarProducto.addEventListener('focus', (e) => {
+    if (e.target.value.trim()) {
+        mostrarSugerenciasProductos(e.target.value);
+    }
+});
+
+// Cerrar sugerencias al hacer clic fuera
+document.addEventListener('click', (e) => {
+    if (e.target !== buscarProducto && !sugerenciasProductos.contains(e.target)) {
+        sugerenciasProductos.classList.remove('activa');
+    }
+});
 
 // Función para imprimir la lista de pedidos
 

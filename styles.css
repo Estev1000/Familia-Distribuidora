@@ -363,3 +363,73 @@ nav a:hover {
     font-weight: bold;
     display: none;
 }
+
+/* Estilos para buscador de productos */
+.buscador-productos-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+}
+
+#buscar-producto {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+#buscar-producto:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.sugerencias-lista {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    list-style: none;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sugerencias-lista.activa {
+    display: block;
+}
+
+.sugerencias-lista li {
+    padding: 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.sugerencias-lista li:hover {
+    background-color: var(--background-color);
+}
+
+.sugerencias-lista li:last-child {
+    border-bottom: none;
+}
+
+.sugerencias-lista li .producto-nombre {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.sugerencias-lista li .producto-precio {
+    color: var(--success-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+}

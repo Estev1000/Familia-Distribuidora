@@ -58,9 +58,11 @@
                     <select id="cliente-pedido" required>
                         <option value="">Seleccionar Cliente</option>
                     </select>
-                    <select id="producto-pedido" required>
-                        <option value="">Seleccionar Producto</option>
-                    </select>
+                    <div class="buscador-productos-container">
+                        <input type="text" id="buscar-producto" placeholder="Buscar Producto..." autocomplete="off">
+                        <input type="hidden" id="producto-pedido" required>
+                        <ul id="sugerencias-productos" class="sugerencias-lista"></ul>
+                    </div>
                     <input type="number" id="cantidad-pedido" placeholder="Cantidad" required>
                 </div>
                 <button type="submit" class="btn-primary"><i class="fas fa-plus"></i> Registrar Pedido</button>
