@@ -47,7 +47,13 @@
         </section>
 
         <section id="pedidos" class="seccion-app">
-            <h2><i class="fas fa-clipboard-list"></i> Pedidos</h2>            <form id="form-pedido" class="form-app">
+            <h2><i class="fas fa-clipboard-list"></i> Pedidos</h2>
+            <div id="datos-preventista" class="preventista-info">
+                <input type="text" id="nombre-preventista" placeholder="Ingresa tu nombre como preventista" maxlength="50">
+                <button id="guardar-preventista" class="btn-preventista"><i class="fas fa-check"></i> Registrarse</button>
+                <span id="preventista-conectado" class="preventista-badge-header"></span>
+            </div>
+            <form id="form-pedido" class="form-app">
                 <div class="form-group">
                     <select id="cliente-pedido" required>
                         <option value="">Seleccionar Cliente</option>
@@ -62,7 +68,7 @@
             <ul id="lista-pedidos" class="lista-items"></ul>
             <footer class="acciones-pedidos">
                 <button id="exportar-json" class="btn-action"><i class="fas fa-file-export"></i> Exportar JSON</button>
-                <button id="importar-json" class="btn-action"><i class="fas fa-file-import"></i> Importar JSON</button>
+                <button id="importar-json" class="btn-action"><i class="fas fa-file-import"></i> Importar JSON (Múltiple)</button>
                 <button id="exportar-excel" class="btn-action"><i class="fas fa-file-excel"></i> Exportar Excel</button>
                 <button id="imprimir-pedidos" class="btn-action"><i class="fas fa-print"></i> Imprimir Pedidos</button>
                 <button id="borrar-todo" class="btn-action"><i class="fas fa-trash"></i> Borrar todo</button>

@@ -2,6 +2,7 @@
 let clientes = [];
 let productos = [];
 let pedidos = [];
+let preventistaActual = ''; // Nombre del preventista que está usando la app
 
 // Referencias a elementos del DOM
 const formCliente = document.getElementById('form-cliente');
@@ -19,6 +20,11 @@ const productoPedido = document.getElementById('producto-pedido');
 const formPedido = document.getElementById('form-pedido');
 const listaPedidos = document.getElementById('lista-pedidos');
 
+// Referencias para el preventista
+const nombrePreventista = document.getElementById('nombre-preventista');
+const guardarPreventistaBtn = document.getElementById('guardar-preventista');
+const preventistaConectado = document.getElementById('preventista-conectado');
+
 // Botón borrar todo
 const botonBorrarTodo = document.getElementById('borrar-todo');
 
@@ -27,6 +33,7 @@ const STORAGE_KEYS = {
     clientes: 'familia_clientes',
     productos: 'familia_productos',
     pedidos: 'familia_pedidos',
+    preventista: 'familia_preventista_actual',
 };
 
 // Persistencia
@@ -35,6 +42,7 @@ function saveAll() {
         localStorage.setItem(STORAGE_KEYS.clientes, JSON.stringify(clientes));
         localStorage.setItem(STORAGE_KEYS.productos, JSON.stringify(productos));
         localStorage.setItem(STORAGE_KEYS.pedidos, JSON.stringify(pedidos));
+        localStorage.setItem(STORAGE_KEYS.preventista, preventistaActual);
     } catch (e) {
         console.error('Error guardando en localStorage', e);
     }
@@ -45,12 +53,15 @@ function loadAll() {
         const c = JSON.parse(localStorage.getItem(STORAGE_KEYS.clientes) || '[]');
         const p = JSON.parse(localStorage.getItem(STORAGE_KEYS.productos) || '[]');
         const o = JSON.parse(localStorage.getItem(STORAGE_KEYS.pedidos) || '[]');
+        const prev = localStorage.getItem(STORAGE_KEYS.preventista) || '';
         if (Array.isArray(c)) clientes = c;
         if (Array.isArray(p)) productos = p;
         if (Array.isArray(o)) pedidos = o;
+        preventistaActual = prev;
     } catch (e) {
         console.warn('No se pudo cargar desde localStorage, usando valores por defecto');
     }
+    actualizarPreventista();
     renderAll();
 }
 
@@ -106,7 +117,8 @@ function renderPedidos() {
     pedidos.forEach((pedido, index) => {
         const li = document.createElement('li');
         li.dataset.index = index;
-        li.innerHTML = `Cliente: ${pedido.cliente}, Producto: ${pedido.producto}, Cantidad: ${pedido.cantidad} <button onclick="eliminarPedido(${index})">Eliminar</button>`;
+        const preventista = pedido.preventista ? ` <span class="preventista-badge">[${pedido.preventista}]</span>` : '';
+        li.innerHTML = `Cliente: ${pedido.cliente}, Producto: ${pedido.producto}, Cantidad: ${pedido.cantidad}${preventista} <button onclick="eliminarPedido(${index})">Eliminar</button>`;
         listaPedidos.appendChild(li);
     });
 }
@@ -146,11 +158,22 @@ formProducto.addEventListener('submit', (e) => {
 // Función para registrar pedido
 formPedido.addEventListener('submit', (e) => {
     e.preventDefault();
+    
+    if (!preventistaActual) {
+        alert('⚠️ Primero debes registrarte como preventista');
+        return;
+    }
+    
     const cliente = clientePedido.value;
     const producto = productoPedido.value;
     const cantidad = document.getElementById('cantidad-pedido').value;
 
-    const pedido = { cliente, producto, cantidad };
+    const pedido = { 
+        cliente, 
+        producto, 
+        cantidad,
+        preventista: preventistaActual
+    };
     pedidos.push(pedido);
     saveAll();
     renderPedidos();
@@ -216,21 +239,60 @@ botonExportarJSON.addEventListener('click', () => {
     URL.revokeObjectURL(url);
 });
 
-// Función para importar pedidos desde JSON
+// Función para importar múltiples archivos JSON
 botonImportarJSON.addEventListener('click', () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'application/json';
+    input.multiple = true; // Permitir múltiples archivos
     input.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const importedData = JSON.parse(e.target.result);
-            pedidos = Array.isArray(importedData) ? importedData : [];
-            saveAll();
-            renderPedidos();
-        };
-        reader.readAsText(file);
+        const files = event.target.files;
+        let archivosProcessados = 0;
+        let totalImportados = 0;
+        
+        if (files.length === 0) return;
+        
+        Array.from(files).forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    const pedidosArray = Array.isArray(importedData) ? importedData : [];
+                    
+                    // Extraer nombre del preventista del nombre del archivo (ej: "preventista_Juan.json" -> "Juan")
+                    let nombrePreventista = file.name
+                        .replace(/\.json$/i, '')
+                        .replace(/^preventista_/i, '')
+                        .replace(/_/g, ' ');
+                    
+                    // Agregar el campo preventista a cada pedido si no lo tiene
+                    pedidosArray.forEach((pedido) => {
+                        if (!pedido.preventista) {
+                            pedido.preventista = nombrePreventista;
+                        }
+                    });
+                    
+                    // Unificar los pedidos importados con los existentes
+                    pedidos = [...pedidos, ...pedidosArray];
+                    totalImportados += pedidosArray.length;
+                    
+                } catch (error) {
+                    alert(`Error al procesar ${file.name}: ${error.message}`);
+                }
+                
+                archivosProcessados++;
+                
+                // Si es el último archivo, guardar y renderizar
+                if (archivosProcessados === files.length) {
+                    saveAll();
+                    renderPedidos();
+                    if (totalImportados > 0) {
+                        alert(`✓ Se importaron exitosamente ${totalImportados} pedidos de ${files.length} archivo(s)`);
+                    }
+                }
+            };
+            reader.readAsText(file);
+        });
     });
     input.click();
 });
@@ -305,6 +367,42 @@ if (botonBorrarTodo) {
         renderAll();
     });
 }
+
+// Función para actualizar la UI del preventista
+function actualizarPreventista() {
+    if (preventistaActual) {
+        nombrePreventista.value = '';
+        nombrePreventista.style.display = 'none';
+        guardarPreventistaBtn.style.display = 'none';
+        preventistaConectado.innerHTML = `✓ Registrado como: <strong>${preventistaActual}</strong>`;
+        preventistaConectado.style.display = 'inline-block';
+    } else {
+        nombrePreventista.style.display = 'inline-block';
+        guardarPreventistaBtn.style.display = 'inline-block';
+        preventistaConectado.innerHTML = '';
+        preventistaConectado.style.display = 'none';
+    }
+}
+
+// Función para registrar el preventista
+guardarPreventistaBtn.addEventListener('click', () => {
+    const nombre = nombrePreventista.value.trim();
+    if (!nombre) {
+        alert('⚠️ Ingresa tu nombre');
+        return;
+    }
+    preventistaActual = nombre;
+    saveAll();
+    actualizarPreventista();
+    alert(`✓ ¡Bienvenido ${nombre}! Ahora tus pedidos estarán identificados contigo.`);
+});
+
+// Permitir Enter en el input del preventista
+nombrePreventista.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        guardarPreventistaBtn.click();
+    }
+});
 
 // Cargar estado inicial desde localStorage
 loadAll();
